@@ -1,0 +1,24 @@
+calculate_lighthouse_score:
+  stage: testing
+  image: docker:latest
+  only:
+    - dev
+  variables:
+    URL: https://allaboutaws.com
+    S3_REGION: us-east-1
+    S3_LINK_TTL: 86400
+    S3_BUCKET: MY-S3-BUCKET/lighthouse
+    LIGHTHOUSE_SCORE_THRESHOLD: "0.50"
+
+  script:
+    - docker login -u "$CI_REGISTRY_USER" \
+      -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker pull sh39sxn/lighthouse:latest
+    - docker run -e URL=$URL \
+      -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY \
+      -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY \
+      -e AWS_DEFAULT_REGION=$S3_REGION \
+      -e AWS_S3_LINK_TTL=$S3_LINK_TTL \
+      -e AWS_S3_BUCKET=$S3_BUCKET \
+      -e LIGHTHOUSE_SCORE_THRESHOLD=$LIGHTHOUSE_SCORE_THRESHOLD \
+      sh39sxn/lighthouse:latest
